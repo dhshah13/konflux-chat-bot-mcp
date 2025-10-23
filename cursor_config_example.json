@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "konflux-chatbot": {
+      "command": "python3",
+      "args": [
+        "/YOUR/CLONE/PATH/konflux-chatbot-mcp/server.py"
+      ]
+    }
+  }
+}
+
+
+

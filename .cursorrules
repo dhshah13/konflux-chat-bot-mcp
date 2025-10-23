@@ -1,0 +1,63 @@
+# Konflux Question Routing - Automatic MCP Usage
+
+When the user asks a question that is related to Konflux, Red Hat build systems, HACBS, AppStudio, RHTAP, or related topics:
+
+1. **Automatically use the MCP tool** - Do not ask for permission, just use it directly.
+
+2. **For all other questions** (general coding, file editing, non-Konflux topics), respond normally without using the MCP tool.
+
+Konflux-related keywords to watch for:
+- Konflux, HACBS, AppStudio, RHTAP
+- Pipeline, build, deployment (in context of Red Hat/Konflux)
+- Tenant, component, release (in context of Konflux)
+- Supply chain security (Red Hat context)
+
+## When Using MCP Tool:
+
+**Expected parameter format from users:**
+```
+Urgency: [optional]
+Tenant: [optional]
+Application: [optional]
+Component: [optional]
+Question: [required - main question/issue]
+Details: [optional - additional context, logs, error messages]
+```
+
+**Extract parameters from user's message:**
+- Question and Details form the CORE CONTEXT (always together)
+- Urgency, Tenant, Application, Component are ADDITIONAL PARAMETERS (optional metadata)
+
+**After presenting the MCP response:**
+
+0. **Add a header before the response:** Start with "## Konflux Chatbot Response:" before presenting the Diagnostic Assessment
+
+1. **Check the Confidence Level** in the response (High/Medium/Low)
+
+2. **If Confidence is Medium or Low:**
+   - Look at what information the chatbot indicates is missing (in the "Diagnostic Assessment" or confidence statement)
+   - Compare this to what the user ACTUALLY provided in their question
+   - Create a section titled "📋 What's Needed for a Better Answer:"
+   - ONLY list information that the user has NOT yet provided
+   - For each missing item, provide:
+     - What file/log/information is needed
+     - Where to find it (e.g., "In Konflux UI: PipelineRuns → [name] → Logs")
+   - Add this note: "Note: The Konflux chatbot can only access public URLs. If URLs or resources are private, the chatbot will provide generic answers based on its knowledge base."
+   
+3. **After the "What's Needed" section:**
+   - If you (as Cursor AI/Sonnet) can provide additional technical analysis based on the error logs or information in the user's question:
+   - Add a simple, direct analysis section titled "**Additional Analysis (from Cursor):**"
+   - Use clear bullet points or numbered lists
+   - Focus on actionable technical insights from the specific error details provided
+   - End with a "**How I Can Help:**" subsection that tells the user:
+     - If they have access to instances, repositories, logs, or private information - they can share specific files directly in the conversation and you can help analyze them
+     - What specific files/information would be helpful to continue troubleshooting
+     - If they don't have access or can't perform certain tasks/commands mentioned, they should reach out to the **#konflux-users** Slack channel for further assistance
+
+4. **Do NOT include any additional disclaimers** - the information about access limitations is already covered in the "What's Needed for a Better Answer" section when applicable.
+
+Examples:
+- User: "What is Konflux?" → Ask: "Would you like me to use the Konflux AI expert?"
+- User: "Use MCP to tell me about Konflux" → Use MCP directly
+- User: "Create a Python function" → Respond normally, don't ask
+
