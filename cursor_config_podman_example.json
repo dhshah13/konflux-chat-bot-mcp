@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "konflux-chatbot": {
+      "command": "podman",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "konflux-chatbot-mcp:latest"
+      ]
+    }
+  }
+}
+

@@ -11,14 +11,18 @@ Connect to the Konflux AI chatbot directly from Cursor using the Model Context P
 
 ## Quick Setup (5 Minutes)
 
-### Step 1: Clone This Repository
+Choose your preferred setup method:
+
+### Option A: Direct Python (Recommended for Quick Start)
+
+**Step 1: Clone This Repository**
 
 ```bash
 git clone <this-repo-url>
 cd konflux-chatbot-mcp
 ```
 
-### Step 2: Install Python Dependencies
+**Step 2: Install Python Dependencies**
 
 ```bash
 python -m venv venv
@@ -26,37 +30,68 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Step 3: Configure Cursor
+**Step 3: Configure Cursor**
 
-**First, get your current directory path:**
+Get your current directory path:
 ```bash
 pwd
-# Copy this path - you'll need it for the next step
 ```
 
-**Then, add this to your Cursor settings** (`~/.cursor/mcp.json`):
-
-```json
-{
-  "mcpServers": {
-    "konflux-chatbot": {
-      "command": "python3",
-      "args": ["YOUR_PATH_FROM_PWD/server.py"]
-    }
-  }
-}
+Copy the example configuration:
+```bash
+cat cursor_config_example.json
 ```
 
-**Replace `YOUR_PATH_FROM_PWD`** with the path you copied from the `pwd` command.
+Add this to your Cursor settings (`~/.cursor/mcp.json`), replacing `/YOUR/CLONE/PATH/` with your path from `pwd`.
 
-Example: If `pwd` shows `/Users/jane/konflux-chatbot-mcp`, use:
+**Example:** If `pwd` shows `/Users/jane/konflux-chatbot-mcp`, use:
 ```json
 "args": ["/Users/jane/konflux-chatbot-mcp/server.py"]
 ```
 
-### Step 4: Restart Cursor
+**Note:** The chatbot URL is already configured with the default production endpoint. No additional configuration needed!
+
+**Step 4: Restart Cursor**
 
 Restart Cursor to load the MCP server.
+
+---
+
+### Option B: Using Podman/Docker (Containerized)
+
+**Step 1: Clone This Repository**
+
+```bash
+git clone <this-repo-url>
+cd konflux-chatbot-mcp
+```
+
+**Step 2: Build the Container Image**
+
+```bash
+podman build -t konflux-chatbot-mcp:latest .
+# Or with Docker:
+# docker build -t konflux-chatbot-mcp:latest .
+```
+
+**Step 3: Configure Cursor**
+
+Copy the example configuration to your Cursor settings:
+
+```bash
+# Copy the Podman example to your Cursor settings
+cat cursor_config_podman_example.json
+```
+
+Then add it to `~/.cursor/mcp.json`.
+
+For Docker, replace `"command": "podman"` with `"command": "docker"`.
+
+**Step 4: Restart Cursor**
+
+Restart Cursor to load the MCP server.
+
+---
 
 ### Step 5: Try It!
 
