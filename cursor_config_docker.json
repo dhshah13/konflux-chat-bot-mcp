@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "konflux-chatbot": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "quay.io/dhshah/konflux:latest"]
+    }
+  }
+}
+

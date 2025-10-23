@@ -2,7 +2,26 @@
 
 Ask Konflux questions directly in Cursor using the Konflux AI chatbot.
 
-## Setup
+## Quick Setup (Recommended)
+
+**For end users who just want to use the MCP:**
+
+See **[SIMPLE_SETUP.md](./SIMPLE_SETUP.md)** for zero-installation setup using the hosted container.
+
+**TL;DR:** Add this to `~/.cursor/mcp.json` and restart Cursor:
+
+```json
+{
+  "mcpServers": {
+    "konflux-chatbot": {
+      "command": "podman",
+      "args": ["run", "-i", "--rm", "quay.io/dhshah/konflux:latest"]
+    }
+  }
+}
+```
+
+## Development Setup
 
 ### Option A: Direct Python (Recommended)
 
@@ -94,12 +113,37 @@ All fields except `Question` are optional.
 - Share specific error logs, files, or URLs
 - If you can't access resources, ask in **#konflux-users** Slack
 
+## Releases
+
+**Current Version:** `1.0.0` (see [CHANGELOG.md](./CHANGELOG.md))
+
+**For Maintainers:** Use the release script to publish new versions:
+
+```bash
+# Update version and release
+./release.sh 1.0.1
+
+# Or release current VERSION
+./release.sh
+```
+
+This will:
+1. Build the image with version tag and `:latest`
+2. Push both tags to quay.io
+3. Update the VERSION file
+
 ## Files
 
-- `server.py` - MCP server
+- `server.py` - MCP server implementation
+- `Containerfile` - Container build configuration
+- `release.sh` - Release automation script
+- `VERSION` - Current version number
+- `CHANGELOG.md` - Version history and changes
+- `SIMPLE_SETUP.md` - **Quick setup guide for end users (hosted container)**
+- `cursor_config_hosted.json` - Podman config using hosted image (recommended)
+- `cursor_config_docker.json` - Docker config using hosted image
+- `cursor_config_example.json` - Python local development config
+- `cursor_config_podman_example.json` - Podman local build config
 - `.cursorrules` - Auto-routing for Konflux questions
-- `Containerfile` - For Podman/Docker deployment
-- `cursor_config_example.json` - Python setup example
-- `cursor_config_podman_example.json` - Podman setup example
 
 See `QUICKSTART.md` for detailed documentation.
