@@ -181,22 +181,40 @@ class KonfluxChatbotMCP:
             # Join with double newlines
             input_string = "\n\n".join(input_parts)
             
-            # Call /stream_log endpoint (same as playground uses)
+            # Call /stream_log endpoint (returns Server-Sent Events format)
             # Note: verify=False for internal Red Hat certificates
             async with httpx.AsyncClient(timeout=120.0, verify=False) as client:
-                response = await client.post(
+                async with client.stream(
+                    "POST",
                     f"{self.chatbot_url}/stream_log",
                     json={"input": input_string, "config": {}}
-                )
-                response.raise_for_status()
-                
-                result = response.json()
-                
-                # Extract the output from response
-                if isinstance(result, dict) and "output" in result:
-                    return str(result["output"])
-                else:
-                    return str(result)
+                ) as response:
+                    response.raise_for_status()
+                    
+                    final_output = None
+                    
+                    # Parse Server-Sent Events (SSE) format
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            try:
+                                # Remove "data: " prefix and parse JSON
+                                data = json.loads(line[6:])
+                                
+                                # Look for final_output in the ops
+                                if isinstance(data, dict) and "ops" in data:
+                                    for op in data["ops"]:
+                                        if op.get("path") == "/final_output" and "value" in op:
+                                            final_output = op["value"]
+                                        # Also check for replace operations on final_output
+                                        elif op.get("op") == "replace" and op.get("path") == "/final_output":
+                                            final_output = op.get("value")
+                            except json.JSONDecodeError:
+                                continue
+                    
+                    if final_output:
+                        return str(final_output)
+                    else:
+                        return "No response received from chatbot"
                     
         except httpx.HTTPError as e:
             return f"Error communicating with Konflux chatbot: {str(e)}\n\nPlease check:\n1. The chatbot URL is correct\n2. You have network access (VPN required for Red Hat internal services)\n3. The chatbot service is running"
@@ -235,9 +253,7 @@ class KonfluxChatbotMCP:
             # Join with double newlines
             input_string = "\n\n".join(input_parts)
             
-            # Call /stream_log endpoint (streaming version)
-            accumulated_response = ""
-            
+            # Call /stream_log endpoint (returns Server-Sent Events format)
             # Note: verify=False for internal Red Hat certificates
             async with httpx.AsyncClient(timeout=120.0, verify=False) as client:
                 async with client.stream(
@@ -247,17 +263,30 @@ class KonfluxChatbotMCP:
                 ) as response:
                     response.raise_for_status()
                     
+                    final_output = None
+                    
+                    # Parse Server-Sent Events (SSE) format
                     async for line in response.aiter_lines():
-                        if line.strip():
+                        if line.startswith("data: "):
                             try:
-                                # Parse streaming response
-                                data = json.loads(line)
-                                if isinstance(data, dict) and "output" in data:
-                                    accumulated_response += str(data["output"])
+                                # Remove "data: " prefix and parse JSON
+                                data = json.loads(line[6:])
+                                
+                                # Look for final_output in the ops
+                                if isinstance(data, dict) and "ops" in data:
+                                    for op in data["ops"]:
+                                        if op.get("path") == "/final_output" and "value" in op:
+                                            final_output = op["value"]
+                                        # Also check for replace operations on final_output
+                                        elif op.get("op") == "replace" and op.get("path") == "/final_output":
+                                            final_output = op.get("value")
                             except json.JSONDecodeError:
                                 continue
-                
-                return accumulated_response if accumulated_response else "No response received"
+                    
+                    if final_output:
+                        return str(final_output)
+                    else:
+                        return "No response received from chatbot"
                     
         except httpx.HTTPError as e:
             return f"Error communicating with Konflux chatbot: {str(e)}\n\nPlease check:\n1. The chatbot URL is correct\n2. You have network access (VPN required for Red Hat internal services)\n3. The chatbot service is running"
