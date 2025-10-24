@@ -2,7 +2,7 @@
 
 Get Konflux AI assistance directly in Cursor with zero installation!
 
-**Current Version:** 1.0.0 | **Image:** `quay.io/dhshah/konflux:latest`
+**Current Version:** 1.0.1 | **Image:** `quay.io/dhshah/konflux:latest`
 
 ## Setup (2 Steps)
 
@@ -102,7 +102,8 @@ docker pull quay.io/dhshah/konflux:latest
 
 **Available versions:** You can also pin to a specific version if needed:
 - `quay.io/dhshah/konflux:latest` - Always the newest (recommended)
-- `quay.io/dhshah/konflux:v1.0.0` - Specific version
+- `quay.io/dhshah/konflux:v1.0.1` - Latest stable
+- `quay.io/dhshah/konflux:v1.0.0` - Initial release
 
 ## For Developers
 

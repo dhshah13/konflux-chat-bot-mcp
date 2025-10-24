@@ -5,6 +5,18 @@ All notable changes to the Konflux Chatbot MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-10-24
+
+### Fixed
+- **CRITICAL FIX:** Changed to use `/stream_log` endpoint (same as playground) instead of `/rag-with-sources/invoke`
+- Fixed payload format to match playground: now sends formatted string instead of structured JSON
+- This fixes response quality issues - now gets same accurate answers as the playground
+- Format: `"Urgency: ...\n\nApplication: ...\n\nQuestion: ...\n\nDetails: ..."`  instead of `{"question": ..., "urgency": ...}`
+
+### Changed
+- Input parameters are now formatted as a single string with labeled sections
+- Urgency is automatically capitalized for consistency
+
 ## [1.0.0] - 2025-10-23
 
 ### Added

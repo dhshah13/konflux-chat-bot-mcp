@@ -151,39 +151,48 @@ class KonfluxChatbotMCP:
     async def _chat(self, args: dict) -> str:
         """Non-streaming chat with Konflux chatbot"""
         try:
-            # Build the input payload
-            input_data = {
-                "question": args["question"],
-                "urgency": args.get("urgency", "medium"),
-            }
+            # Build the input string in the same format as the playground
+            # Format: "Urgency: ...\n\nTenant: ...\n\nApplication: ...\n\nComponent: ...\n\nQuestion: ...\n\nDetails: ..."
+            input_parts = []
             
+            # Add urgency
+            urgency = args.get("urgency", "medium")
+            input_parts.append(f"Urgency: {urgency.capitalize()}")
+            
+            # Add tenant if provided
             if args.get("tenant"):
-                input_data["tenant"] = args["tenant"]
+                input_parts.append(f"Tenant: {args['tenant']}")
             
-            # Build details with application and component prepended if provided
-            details_parts = []
+            # Add application if provided
             if args.get("application"):
-                details_parts.append(f"Application: {args['application']}")
+                input_parts.append(f"Application: {args['application']}")
+            
+            # Add component if provided
             if args.get("component"):
-                details_parts.append(f"Component: {args['component']}")
+                input_parts.append(f"Component: {args['component']}")
+            
+            # Add question
+            input_parts.append(f"Question: {args['question']}")
+            
+            # Add details if provided
             if args.get("details"):
-                details_parts.append(args["details"])
+                input_parts.append(f"Details: {args['details']}")
             
-            if details_parts:
-                input_data["details"] = "\n".join(details_parts)
+            # Join with double newlines
+            input_string = "\n\n".join(input_parts)
             
-            # Call LangServe /rag-with-sources/invoke endpoint
+            # Call /stream_log endpoint (same as playground uses)
             # Note: verify=False for internal Red Hat certificates
             async with httpx.AsyncClient(timeout=120.0, verify=False) as client:
                 response = await client.post(
-                    f"{self.chatbot_url}/rag-with-sources/invoke",
-                    json={"input": input_data}
+                    f"{self.chatbot_url}/stream_log",
+                    json={"input": input_string, "config": {}}
                 )
                 response.raise_for_status()
                 
                 result = response.json()
                 
-                # Extract the output from LangServe response
+                # Extract the output from response
                 if isinstance(result, dict) and "output" in result:
                     return str(result["output"])
                 else:
@@ -197,43 +206,51 @@ class KonfluxChatbotMCP:
     async def _chat_stream(self, args: dict) -> str:
         """Streaming chat with Konflux chatbot"""
         try:
-            # Build the input payload
-            input_data = {
-                "question": args["question"],
-                "urgency": args.get("urgency", "medium"),
-            }
+            # Build the input string in the same format as the playground
+            input_parts = []
             
+            # Add urgency
+            urgency = args.get("urgency", "medium")
+            input_parts.append(f"Urgency: {urgency.capitalize()}")
+            
+            # Add tenant if provided
             if args.get("tenant"):
-                input_data["tenant"] = args["tenant"]
+                input_parts.append(f"Tenant: {args['tenant']}")
             
-            # Build details with application and component prepended if provided
-            details_parts = []
+            # Add application if provided
             if args.get("application"):
-                details_parts.append(f"Application: {args['application']}")
+                input_parts.append(f"Application: {args['application']}")
+            
+            # Add component if provided
             if args.get("component"):
-                details_parts.append(f"Component: {args['component']}")
+                input_parts.append(f"Component: {args['component']}")
+            
+            # Add question
+            input_parts.append(f"Question: {args['question']}")
+            
+            # Add details if provided
             if args.get("details"):
-                details_parts.append(args["details"])
+                input_parts.append(f"Details: {args['details']}")
             
-            if details_parts:
-                input_data["details"] = "\n".join(details_parts)
+            # Join with double newlines
+            input_string = "\n\n".join(input_parts)
             
-            # Call LangServe /rag-with-sources/stream endpoint
+            # Call /stream_log endpoint (streaming version)
             accumulated_response = ""
             
             # Note: verify=False for internal Red Hat certificates
             async with httpx.AsyncClient(timeout=120.0, verify=False) as client:
                 async with client.stream(
                     "POST",
-                    f"{self.chatbot_url}/rag-with-sources/stream",
-                    json={"input": input_data}
+                    f"{self.chatbot_url}/stream_log",
+                    json={"input": input_string, "config": {}}
                 ) as response:
                     response.raise_for_status()
                     
                     async for line in response.aiter_lines():
                         if line.strip():
                             try:
-                                # LangServe streaming format
+                                # Parse streaming response
                                 data = json.loads(line)
                                 if isinstance(data, dict) and "output" in data:
                                     accumulated_response += str(data["output"])

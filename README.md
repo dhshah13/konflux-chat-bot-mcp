@@ -115,7 +115,7 @@ All fields except `Question` are optional.
 
 ## Releases
 
-**Current Version:** `1.0.0` (see [CHANGELOG.md](./CHANGELOG.md))
+**Current Version:** `1.0.1` (see [CHANGELOG.md](./CHANGELOG.md))
 
 **For Maintainers:** Use the release script to publish new versions:
 
